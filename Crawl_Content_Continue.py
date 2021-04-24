@@ -5,8 +5,7 @@ import html2text
 import csv
 import collections
 from csv import DictWriter
-
-
+import time
 
 # Crawl VnExpress content
 columns = collections.defaultdict(list)
@@ -28,13 +27,16 @@ def addRow (fileName, newrow):
 dataContents= []
 for index, link in enumerate(columns[1]):
     page = requests.get(link ,verify=False)
+    if page.status_code == 429:
+        time.sleep(int(page.headers["Retry-After"]))
     soup = BeautifulSoup(page.content, 'html.parser')
     content = soup.find_all('article',class_='fck_detail')
     description = soup.find_all('p',class_='description')
     title = soup.find_all('h1', class_='title-detail')
     h = html2text.HTML2Text()
     h.ignore_links = True
-    dataContents.append(h.handle(title[0].get_text()+'. '+description[0].get_text()+content[0].get_text()))
+    addRow('test.csv',h.handle(title[0].get_text()+'. '+description[0].get_text()+content[0].get_text()))
+    # dataContents.append()
     print('Finished page '+ str(index))
 
 df= pd.DataFrame({
