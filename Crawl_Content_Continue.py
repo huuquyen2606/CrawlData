@@ -24,7 +24,7 @@ with open('dataVnExpressLink.csv', 'r',encoding="utf8") as file:
             if index != 0:
                 columns[k].append(v)
     file.close()
-for index, link in enumerate(columns[0]):
+for index, link in enumerate(columns[1]):
     page = requests.get(link ,verify=False)
     print(page.status_code)
     soup = BeautifulSoup(page.content, 'html.parser')
