@@ -7,28 +7,26 @@ import collections
 from csv import DictWriter
 import time
 
-# Crawl VnExpress content
-columns = collections.defaultdict(list)
-links = []
-with open('dataVnExpressLink.csv', 'r',encoding="utf8") as file:
-    reader = csv.reader(file)
-    for index,row in enumerate(reader):
-        for (k,v) in enumerate(row):
-            if index != 0:
-                columns[k].append(v)
-
 def addRow (fileName, newrow):
     fields=['Content']
     with open(fileName, 'a',encoding="utf8") as file:
         content = DictWriter(file, fields)
         content.writerow({'Content':newrow})
         file.close()
-#Add more row 
-dataContents= []
-for index, link in enumerate(columns[1]):
+
+# Crawl VnExpress content
+# for i in range(1,79):
+columns = collections.defaultdict(list)
+with open('LinkVnEx/data'+str(1)+'.csv', 'r',encoding="utf8") as file:
+    reader = csv.reader(file)
+    for index,row in enumerate(reader):
+        for (k,v) in enumerate(row):
+            if index != 0:
+                columns[k].append(v)
+    file.close()
+for index, link in enumerate(columns[0]):
     page = requests.get(link ,verify=False)
-    if page.status_code == 429:
-        time.sleep(int(page.headers["Retry-After"]))
+    print(page.status_code)
     soup = BeautifulSoup(page.content, 'html.parser')
     content = soup.find_all('article',class_='fck_detail')
     description = soup.find_all('p',class_='description')
@@ -36,11 +34,5 @@ for index, link in enumerate(columns[1]):
     h = html2text.HTML2Text()
     h.ignore_links = True
     addRow('test.csv',h.handle(title[0].get_text()+'. '+description[0].get_text()+content[0].get_text()))
-    # dataContents.append()
+        
     print('Finished page '+ str(index))
-
-df= pd.DataFrame({
-                  'Content':dataContents
-                })
-df.transpose
-df.to_csv(r'data1.csv',index=False,header=True, encoding='utf-8')
