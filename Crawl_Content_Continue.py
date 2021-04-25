@@ -15,9 +15,9 @@ def addRow (fileName, newrow):
         file.close()
 
 # Crawl VnExpress content
-# for i in range(1,79):
+numPagesNull = 0 
 columns = collections.defaultdict(list)
-with open('LinkVnEx/data'+str(1)+'.csv', 'r',encoding="utf8") as file:
+with open('dataVnExpressLink.csv', 'r',encoding="utf8") as file:
     reader = csv.reader(file)
     for index,row in enumerate(reader):
         for (k,v) in enumerate(row):
@@ -31,8 +31,11 @@ for index, link in enumerate(columns[0]):
     content = soup.find_all('article',class_='fck_detail')
     description = soup.find_all('p',class_='description')
     title = soup.find_all('h1', class_='title-detail')
-    h = html2text.HTML2Text()
-    h.ignore_links = True
-    addRow('test.csv',h.handle(title[0].get_text()+'. '+description[0].get_text()+content[0].get_text()))
-        
-    print('Finished page '+ str(index))
+    if (len(content)==0 or len(description)==0 or len(title)==0):
+        numPagesNull+=1
+    else:
+        h = html2text.HTML2Text()
+        h.ignore_links = True
+        addRow('test.csv',h.handle(title[0].get_text()+'. '+description[0].get_text()+content[0].get_text()))
+        print('Finished page '+ str(index))
+print('Total page null:', numPagesNull)
