@@ -17,7 +17,7 @@ def addRow (fileName, newrow):
 # Crawl VnExpress content
 numPagesNull = 0 
 columns = collections.defaultdict(list)
-with open('dataDantriLink.csv', 'r',encoding="utf8") as file:
+with open('dataLaodongLink.csv', 'r',encoding="utf8") as file:
     reader = csv.reader(file)
     for index,row in enumerate(reader):
         for (k,v) in enumerate(row):
@@ -30,7 +30,6 @@ headers = {
         # "Connection": "keep-alive"
     }
 for index, link in enumerate(columns[1]):
-    link = 'https://dantri.com.vn/'+link
     checkError = False
     try:
         page = requests.get(link ,headers=headers)
@@ -46,17 +45,18 @@ for index, link in enumerate(columns[1]):
         numPagesNull+=1
     else:
         soup = BeautifulSoup(page.content, 'html.parser')
-        content = soup.find_all('div',class_='dt-news__body')
+        content = soup.find_all('div',class_='row')
         
         if len(content)==0:
             numPagesNull+=1
         else:
-            title = soup.find_all('h1',class_='dt-news__title')
-            description = content[0].find_all('div', class_='dt-news__sapo')
-            content_inside = content[0].find_all('div', class_='dt-news__content')
+            title = soup.find_all('div',class_='section-title')
+            title = title[0].find_all('div', class_='title')
+            title = title[0].find_all('h1')
+            description = content[0].find_all('p', class_='abs')
+            content_inside = content[0].find_all('div', class_='article-content')
             h = html2text.HTML2Text()
             h.ignore_links = True
-            addRow('DantriData.csv',h.handle(title[0].get_text()+'. '+description[0].get_text()+content_inside[0].get_text()))
+            addRow('LaodongData.csv',h.handle(title[0].get_text()+'. '+description[0].get_text()+content_inside[0].get_text()))
             print('Finished page '+ str(index))
-    break
 print('Total page null:', numPagesNull)

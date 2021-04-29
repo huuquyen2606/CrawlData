@@ -17,6 +17,7 @@ linkGov = [
 linkVnEx = ['https://vnexpress.net/suc-khoe-p',1039]
 linkVietNamNet = ['https://vietnamnet.vn/vn/suc-khoe/trang',540]
 linkDantri = ['https://dantri.com.vn/suc-khoe/','.htm']
+linkLaodong = ['https://laodong.vn/suc-khoe?page=',560]
 # #Crawl from Goverment
 # for pageRange in range(3):
 #   for i in range(1,int(linkGov[pageRange][1])):
@@ -66,26 +67,40 @@ linkDantri = ['https://dantri.com.vn/suc-khoe/','.htm']
 #               })
 
 #Crawl from dan tri
-d1 = datetime.date(2005, 1, 1)
-d2 = datetime.date(2021, 4, 27)
-days = [d1 + datetime.timedelta(days=x) for x in range((d2-d1).days + 1)]
-headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36'}
+# d1 = datetime.date(2005, 1, 1)
+# d2 = datetime.date(2021, 4, 27)
+# days = [d1 + datetime.timedelta(days=x) for x in range((d2-d1).days + 1)]
+# headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36'}
   
-for day in days:
-  link = linkDantri[0] + str(27)+'-'+str(4)+'-'+str(2021) +linkDantri[1]
-  page = requests.get(link,headers=headers,verify=False)
+# for day in days:
+#   link = linkDantri[0] + str(27)+'-'+str(4)+'-'+str(2021) +linkDantri[1]
+#   page = requests.get(link,headers=headers,verify=False)
+#   soup = BeautifulSoup(page.content, 'html.parser')
+#   groupElement = soup.find_all('div',class_='col col--primary')
+#   for element in groupElement[0].find_all('div',class_='news-item news-item--stream news-item--left2right'):
+#     titles = element.find_all('h3',class_='news-item__title')
+#     title = titles[0].find_all('a')
+#     dataTitles.append(title[0].get_text())
+#     dataLinks.append(title[0]['href'])
+#   print('Finished page '+ str(day.day)+'-'+str(day.month)+'-'+str(day.year))
+
+#Crawl data Lao Dong
+headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36'}
+for i in range(1,int(linkLaodong[1])):
+  link = str(linkLaodong[0]) + str(i)
+  page = requests.get(link,headers=headers)
   soup = BeautifulSoup(page.content, 'html.parser')
-  groupElement = soup.find_all('div',class_='col col--primary')
-  for element in groupElement[0].find_all('div',class_='news-item news-item--stream news-item--left2right'):
-    titles = element.find_all('h3',class_='news-item__title')
+  for element in soup.find_all('article',class_='article-large N2'):
+    titles = element.find_all('h4')
     title = titles[0].find_all('a')
     dataTitles.append(title[0].get_text())
     dataLinks.append(title[0]['href'])
-  print('Finished page '+ str(day.day)+'-'+str(day.month)+'-'+str(day.year))
+  print('Finished page '+ str(i))
+
 df= pd.DataFrame({
                 'titles':dataTitles,
               #   'dates':dataDates,
                 'links':dataLinks
               })
 df.transpose
-df.to_csv(r'dataDantri.csv',index=False,header=True, encoding='utf-8')
+df.to_csv(r'dataLaodongLink.csv',index=False,header=True, encoding='utf-8')
