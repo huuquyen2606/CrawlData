@@ -17,7 +17,7 @@ def addRow (fileName, newrow):
 # Crawl VnExpress content
 numPagesNull = 0 
 columns = collections.defaultdict(list)
-with open('dataTuoitreLink.csv', 'r',encoding="utf8") as file:
+with open('dataDSPLLink.csv', 'r',encoding="utf8") as file:
     reader = csv.reader(file)
     for index,row in enumerate(reader):
         for (k,v) in enumerate(row):
@@ -30,7 +30,7 @@ headers = {
         # "Connection": "keep-alive"
     }
 for index, link in enumerate(columns[1]):
-    link = 'https://tuoitre.vn'+link
+    # link = 'https://tuoitre.vn'+link
     checkError = False
     try:
         page = requests.get(link ,headers=headers)
@@ -46,17 +46,16 @@ for index, link in enumerate(columns[1]):
         numPagesNull+=1
     else:
         soup = BeautifulSoup(page.content, 'html.parser')
-        content = soup.find_all('div',class_='content-detail column-3')
+        content = soup.find_all('article',class_='detail')
         
         if len(content)==0:
             numPagesNull+=1
         else:
-            title = content[0].find_all('div',class_='w980')
-            title = title[0].find_all('h1', class_='article-title')
-            content = content[0].find_all('section', class_='detail-w fl')
-            content_inside = content[0].find_all('div', class_='main-content-body')
+            content = content[0].find_all('div', {'id':"main-detail"})
+            content = content[0].find_all('div', {'itemprop':"articleBody"})
+            title = soup.find_all('header', class_='heading')
             h = html2text.HTML2Text()
             h.ignore_links = True
-            addRow('TuoitreData.csv',h.handle(title[0].get_text()+'. '+content_inside[0].get_text()))
+            addRow('DSPLData.csv',h.handle(title[0].get_text()+'. '+content[0].get_text()))
             print('Finished page '+ str(index))
 print('Total page null:', numPagesNull)

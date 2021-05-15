@@ -19,6 +19,7 @@ linkVietNamNet = ['https://vietnamnet.vn/vn/suc-khoe/trang',540]
 linkDantri = ['https://dantri.com.vn/suc-khoe/','.htm']
 linkLaodong = ['https://laodong.vn/suc-khoe?page=',560]
 linkTuoitre = ['https://tuoitre.vn/suc-khoe/xem-theo-ngay/','.htm']
+linkDSPL = ['https://www.doisongphapluat.com/doi-song/suc-khoe-lam-dep/page/',668]
 # #Crawl from Goverment
 # for pageRange in range(3):
 #   for i in range(1,int(linkGov[pageRange][1])):
@@ -99,27 +100,45 @@ linkTuoitre = ['https://tuoitre.vn/suc-khoe/xem-theo-ngay/','.htm']
 #   print('Finished page '+ str(i))
 
 #Crawl from tuoi tre
-d1 = datetime.date(2004, 1, 1)
-d2 = datetime.date(2021, 4, 30)
-days = [d1 + datetime.timedelta(days=x) for x in range((d2-d1).days + 1)]
-headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36'}
+# d1 = datetime.date(2004, 1, 1)
+# d2 = datetime.date(2021, 4, 30)
+# days = [d1 + datetime.timedelta(days=x) for x in range((d2-d1).days + 1)]
+# headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36'}
   
-for day in days:
-  link = linkTuoitre[0] + str(day.day)+'-'+str(day.month)+'-'+str(day.year) +linkTuoitre[1]
-  page = requests.get(link,headers=headers,verify=False)
+# for day in days:
+#   link = linkTuoitre[0] + str(day.day)+'-'+str(day.month)+'-'+str(day.year) +linkTuoitre[1]
+#   page = requests.get(link,headers=headers,verify=False)
+#   soup = BeautifulSoup(page.content, 'html.parser')
+#   groupElement = soup.find_all('div',class_='box-news-latest isstream')
+#   if len(groupElement)!= 0:
+#     for element in groupElement[0].find_all('li',class_='news-item'):
+#       titles = element.find_all('a')
+#       dataTitles.append(titles[0].get_text())
+#       dataLinks.append(titles[0]['href'])
+#     print('Finished page '+ str(day.day)+'-'+str(day.month)+'-'+str(day.year))
+
+#Crawl from doi song phap luat
+headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36'}
+for i in range(1,int(linkDSPL[1])):
+  link = str(linkDSPL[0]) + str(i)
+  page = requests.get(link,headers=headers)
   soup = BeautifulSoup(page.content, 'html.parser')
-  groupElement = soup.find_all('div',class_='box-news-latest isstream')
-  if len(groupElement)!= 0:
-    for element in groupElement[0].find_all('li',class_='news-item'):
+  content = soup.find_all('section', class_='art-listing')
+  if len(content)!=0:
+    for element in content[0].find_all('h3',class_='title'):
       titles = element.find_all('a')
       dataTitles.append(titles[0].get_text())
       dataLinks.append(titles[0]['href'])
-    print('Finished page '+ str(day.day)+'-'+str(day.month)+'-'+str(day.year))
-
+    print('Finished page '+ str(i))
+df= pd.DataFrame({
+                'titles':dataTitles,
+              #   'dates':dataDates,
+                'links':dataLinks
+              })
 df= pd.DataFrame({
                 'titles':dataTitles,
               #   'dates':dataDates,
                 'links':dataLinks
               })
 df.transpose
-df.to_csv(r'dataTuoitreLink.csv',index=False,header=True, encoding='utf-8')
+df.to_csv(r'dataDSPLLink.csv',index=False,header=True, encoding='utf-8')
